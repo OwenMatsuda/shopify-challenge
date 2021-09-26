@@ -5,16 +5,6 @@ from flask_restful import Api, Resource, reqparse
 import werkzeug
 from werkzeug.utils import secure_filename
 
-app = Flask(__name__)
-api = Api(app)
-
-# Image database
-images = [None] * 100
-
-# Set up image uploading
-upload_folder = "./images"
-allowed_extensions = {"png", "jpg", "jpeg", "gif", "pdf"}
-app.config["UPLOAD_FOLDER"] = upload_folder
 
 # Helper functions
 def get_unused_image_id():
@@ -38,7 +28,32 @@ def get_filepath(index, filename):
     """
     Returns filepath of image in system
     """
-    return os.path.join(app.config["UPLOAD_FOLDER"], str(index) + filename)
+    if index < 10:
+        str_index = f"0{index}"
+    else:
+        str_index = str(index)
+    return os.path.join(app.config["UPLOAD_FOLDER"], str_index + filename)
+
+
+app = Flask(__name__)
+api = Api(app)
+
+# Image database
+images = [None] * 100
+
+# Set up image uploading
+upload_folder = "./images"
+# Persist files when starting/stopping server
+if not os.path.exists(upload_folder):
+    os.mkdir(upload_folder)
+else:
+    for image in os.listdir(upload_folder):
+        image_id = int(image[0:2])
+        image_filename = image[2:]
+        images[image_id] = {"id": image_id, "filename": image_filename}
+
+allowed_extensions = {"png", "jpg", "jpeg", "gif", "pdf"}
+app.config["UPLOAD_FOLDER"] = upload_folder
 
 
 # Main class for most of our basic api calls
