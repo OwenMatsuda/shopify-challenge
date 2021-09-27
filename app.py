@@ -52,27 +52,23 @@ else:
         image_filename = image[2:]
         images[image_id] = {"id": image_id, "filename": image_filename}
 
-allowed_extensions = {"png", "jpg", "jpeg", "gif", "pdf"}
+allowed_extensions = ["png", "jpg", "jpeg", "gif", "pdf"]
 app.config["UPLOAD_FOLDER"] = upload_folder
 
 
 # Main class for most of our basic api calls
 class Image(Resource):
-    def get(self, id=-1):
+    def get(self, id):
         """
         Returns image file
         """
-        if id == -1:
-            return "please specify a picture name or id"
-        elif id < -1 or id > 100:
-            return "id must be an integer between 0 and 99", 400  # Add proper format
-        if images[id] != None:
-            return send_file(
-                get_filepath(id, images[id]["filename"]),
-                download_name=images[id]["filename"],
-                as_attachment=True,
-            )
-        return "this image id does not exist", 404
+        if id < 0 or id > 99 or images[id] == None:
+            return "Invalid image id", 400
+        return send_file(
+            get_filepath(id, images[id]["filename"]),
+            download_name=images[id]["filename"],
+            as_attachment=True,
+        )
 
     def post(self):
         """
@@ -93,6 +89,11 @@ class Image(Resource):
         if valid_file_ext(image_file.filename):
             image_filename = secure_filename(image_file.filename)
             image_file.save(get_filepath(image_id, image_filename))
+        else:
+            return (
+                "Bad file extension. Filetypes png, jpg, jpeg, gif, pdf are supported",
+                400,
+            )
         image = {"id": image_id, "filename": image_filename}
         images[image_id] = image
         return image, 201
@@ -107,7 +108,10 @@ class Image(Resource):
 
         if images[id] == None:
             return "this image id does not exist", 404
-        os.rename(get_filepath(id, images[id]["filename"]), get_filepath(id, params["image_name"]))
+        os.rename(
+            get_filepath(id, images[id]["filename"]),
+            get_filepath(id, params["image_name"]),
+        )
         images[id]["filename"] = params["image_name"]
         return images[id], 200
 
