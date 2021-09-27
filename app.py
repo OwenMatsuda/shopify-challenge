@@ -108,9 +108,11 @@ class Image(Resource):
 
         if images[id] == None:
             return "This image id does not exist", 404
-        elif not valid_file_ext(params["image_name"]):
+        previous_file_ext = images[id]["filename"].split(".")[1]
+        new_file_ext = params["image_name"].split(".")[1]
+        if previous_file_ext != new_file_ext:
             return (
-                "Bad file extension. Filetypes png, jpg, jpeg, gif, pdf are supported",
+                f"Bad file extension. Renaming a filetype must have the same file extension {previous_file_ext}",
                 400,
             )
         os.rename(

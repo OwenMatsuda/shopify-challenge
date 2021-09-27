@@ -5,3 +5,4 @@ images/
 *.jpeg
 *.gif
 *.pdf
+*/__pycache__/

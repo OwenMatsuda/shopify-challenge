@@ -53,11 +53,11 @@ class TestRename(TestBase):
             f.write("mario")
         subprocess.run(["./Shopository", "push", filepath], stdout=subprocess.DEVNULL)
         result = subprocess.run(
-            ["./Shopository", "rename", "0", "wario.banana"], capture_output=True
+            ["./Shopository", "rename", "0", "wario.gif"], capture_output=True
         )
         self.assertEqualDecode(
             result.stderr,
-            f'Error 400. "Bad file extension. Filetypes png, jpg, jpeg, gif, pdf are supported"\n\n',
+            f'Error 400. "Bad file extension. Renaming a filetype must have the same file extension jpeg"\n\n',
         )
         subprocess.run(
             ["./Shopository", "remove", "0", "--yes"], stdout=subprocess.DEVNULL

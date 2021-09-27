@@ -32,6 +32,18 @@ Index: 5, Image Name: toost3.gif
 """
         self.assertEqualDecode(result.stdout, checkStr)
         subprocess.run(
+            ["./Shopository", "rename", "4", "yoshi.gif"], stdout=subprocess.DEVNULL
+        )
+        result = subprocess.run(["./Shopository", "ls"], capture_output=True)
+        checkStr = """Index: 0, Image Name: toost1.gif
+Index: 1, Image Name: toost2.gif
+Index: 2, Image Name: toost3.gif
+Index: 3, Image Name: toost3.gif
+Index: 4, Image Name: yoshi.gif
+Index: 5, Image Name: toost3.gif
+"""
+        self.assertEqualDecode(result.stdout, checkStr)
+        subprocess.run(
             ["./Shopository", "remove", "2", "--yes"], stdout=subprocess.DEVNULL
         )
         subprocess.run(
@@ -40,7 +52,7 @@ Index: 5, Image Name: toost3.gif
         result = subprocess.run(["./Shopository", "ls"], capture_output=True)
         checkStr = """Index: 0, Image Name: toost1.gif
 Index: 1, Image Name: toost2.gif
-Index: 4, Image Name: toost3.gif
+Index: 4, Image Name: yoshi.gif
 Index: 5, Image Name: toost3.gif
 """
         self.assertEqualDecode(result.stdout, checkStr)
