@@ -155,4 +155,4 @@ api.add_resource(Image_getname, "/images/getname/<int:id>")
 api.add_resource(Image_LS, "/images/ls", "/images/ls/")
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000)

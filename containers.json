@@ -1,0 +1,9 @@
+{
+    "shopository": {
+        "image": ":shopository.shopository.1",
+        "ports": {
+            "5000": "HTTP"
+        }
+    }
+}
+
