@@ -7,7 +7,7 @@ import subprocess
 import tempfile
 
 
-class TestPush(unittest.TestCase):
+class TestBase(unittest.TestCase):
     def setUp(self):
         # Create a temporary directory
         self.test_dir = tempfile.mkdtemp()
@@ -19,6 +19,8 @@ class TestPush(unittest.TestCase):
     def assertEqualDecode(self, output, checkStr):
         self.assertEqual(output.decode("utf-8"), checkStr)
 
+
+class TestPush(TestBase):
     def push_success(self, filename):
         filepath = os.path.join(self.test_dir, filename)
         f = open(filepath, "x")
@@ -79,18 +81,7 @@ Error: Missing argument 'IMAGE_FILE'.
             )
 
 
-class TestPull(unittest.TestCase):
-    def setUp(self):
-        # Create a temporary directory
-        self.test_dir = tempfile.mkdtemp()
-
-    def tearDown(self):
-        # Remove the directory after the test
-        shutil.rmtree(self.test_dir)
-
-    def assertEqualDecode(self, output, checkStr):
-        self.assertEqual(output.decode("utf-8"), checkStr)
-
+class TestPull(TestBase):
     def test_pull_success(self):
         filename = "skatroopa.png"
         if os.path.exists(f"./{filename}"):
@@ -214,18 +205,7 @@ class TestPull(unittest.TestCase):
             ["./Shopository", "remove", "2", "--yes"], stdout=subprocess.DEVNULL
         )
 
-class TestRename(unittest.TestCase):
-    def setUp(self):
-        # Create a temporary directory
-        self.test_dir = tempfile.mkdtemp()
-
-    def tearDown(self):
-        # Remove the directory after the test
-        shutil.rmtree(self.test_dir)
-
-    def assertEqualDecode(self, output, checkStr):
-        self.assertEqual(output.decode("utf-8"), checkStr)
-
+class TestRename(TestBase):
     def test_rename_success(self):
         filepath = os.path.join(self.test_dir, "bowser.jpeg")
         new_name = "wario.jpeg"
