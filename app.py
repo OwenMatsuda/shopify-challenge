@@ -67,7 +67,6 @@ class Image(Resource):
         elif id < -1 or id > 100:
             return "id must be an integer between 0 and 99", 400  # Add proper format
         if images[id] != None:
-            print(images[id]["filename"])
             return send_file(
                 get_filepath(id, images[id]["filename"]),
                 download_name=images[id]["filename"],
@@ -108,7 +107,8 @@ class Image(Resource):
 
         if images[id] == None:
             return "this image id does not exist", 404
-        images[id]["name"] = params["image_name"]
+        os.rename(get_filepath(id, images[id]["filename"]), get_filepath(id, params["image_name"]))
+        images[id]["filename"] = params["image_name"]
         return images[id], 200
 
     def delete(self, id):
@@ -120,6 +120,15 @@ class Image(Resource):
 
         os.remove(get_filepath(id, images[id]["filename"]))
         images[id] = None
+        return 200
+
+
+class Image_getname(Resource):
+    def get(self, id):
+        """Returns image name"""
+        if images[id] == None:
+            return "this image id does not exist", 404
+        return images[id]["filename"], 200
 
 
 class Image_LS(Resource):
@@ -127,11 +136,11 @@ class Image_LS(Resource):
         """
         Returns a list of all existing images
         """
-        existing_images = list(filter(lambda x: x != None, images))
-        return list(filter(lambda x: x != None, images)), 201
+        return list(filter(lambda x: x != None, images))
 
 
 api.add_resource(Image, "/images", "/images/", "/images/<int:id>")
+api.add_resource(Image_getname, "/images/getname/<int:id>")
 api.add_resource(Image_LS, "/images/ls", "/images/ls/")
 
 if __name__ == "__main__":

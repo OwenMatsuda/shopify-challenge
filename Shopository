@@ -1,0 +1,95 @@
+#!./venv/bin/python
+import click
+import requests
+import os
+
+
+@click.group()
+def shopository():
+    """CLI wrapper for shopository"""
+
+
+# help = '/path/to/image_file'
+@click.argument('image_file')
+@shopository.command()
+def push(image_file: str):
+    """
+    Add an image to the repo \n
+    IMAGE_FILE = /PATH/TO/IMAGE_FILE
+    """
+    if not os.path.exists(image_file):
+        print("This file doesn't exist. Check to make sure your path is correct")
+        return
+    response = requests.post(url="http://127.0.0.1:5000/images", files={"image_file": open(image_file, 'rb')})
+    if response.status_code == 201:
+        print(f"{image_file.split('/')[-1]} was successfully added with id {response.json()['id']}")
+    else:
+        print(f"Error {response.status_code}. {response.text}")
+
+
+# , help='image id. Can be found using Shopository ls'
+@click.option('-o', '--output', help='output file location. By default it is the name of the image file in the current directory')
+@click.argument('image_id')
+@shopository.command()
+def pull(image_id: int, output: str):
+    """
+    Fetch image with id image_id \n
+    IMAGE_ID = Shopository image id. Can be found using Shopository ls
+    """
+    if not output:
+        r = requests.get(url=f"http://127.0.0.1:5000/images/getname/{image_id}")
+        if r.status_code == 200:
+            output = r.text[1:-2]
+            print(output)
+    response = requests.get(url=f"http://127.0.0.1:5000/images/{image_id}")
+    if response.status_code == 200:
+        with open(output, "wb") as fd:
+            fd.write(response.content)
+        print(f"{image_id.split('/')[-1]} was successfully pulled to {output}")
+    else:
+        print(f"Error {response.status_code}. {response.text}")
+
+
+# , help='new file name for given image'
+@click.argument('image_id')
+@click.argument('name')
+@shopository.command()
+def rename(image_id: int, name: str):
+    """
+    Renames image at <image_id> to <name> \n
+    IMAGE_ID = Shopository image id. Can be found using Shopository ls
+    NAME = new file name for given image
+    """
+    response = requests.put(url=f"http://127.0.0.1:5000/images/{image_id}", params={"image_name": name})
+    if response.status_code == 200:
+        print(f"file {image_id} successfully renamed to {name}")
+    else:
+        print(f"Error {response.status_code}. {response.text}")
+
+
+@click.argument('image_id')
+@shopository.command()
+def remove(image_id: int):
+    """
+    Deletes image at <image_id> \n
+    IMAGE_ID = Shopository image id. Can be found using Shopository ls
+    """
+    click.confirm(f"This will permanently delete image {image_id}. Are you sure you want to continue?")
+    response = requests.delete(url=f"http://127.0.0.1:5000/images/{image_id}")
+    if response.status_code == 200:
+        print(f"file {image_id} successfully deleted")
+    else:
+        print(f"Error {response.status_code}. {response.text}")
+
+
+@shopository.command()
+def ls():
+    """List all images in the repo"""
+    response = requests.get(url="http://127.0.0.1:5000/images/ls")
+    if response.status_code == 200:
+        print("\n".join([f"Index: {image['id']}, Image Name: {image['filename']}" for image in response.json()]))
+    else:
+        print(f"Error {response.status_code}. {response.text}")
+
+if __name__ == '__main__':
+    shopository(prog_name='Shopository')
