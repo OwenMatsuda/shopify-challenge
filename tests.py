@@ -205,6 +205,7 @@ class TestPull(TestBase):
             ["./Shopository", "remove", "2", "--yes"], stdout=subprocess.DEVNULL
         )
 
+
 class TestRename(TestBase):
     def test_rename_success(self):
         filepath = os.path.join(self.test_dir, "bowser.jpeg")
@@ -215,8 +216,12 @@ class TestRename(TestBase):
         if os.path.exists(pulled_file):
             os.remove(pulled_file)
         subprocess.run(["./Shopository", "push", filepath], stdout=subprocess.DEVNULL)
-        result = subprocess.run(["./Shopository", "rename", "0", new_name], capture_output=True)
-        self.assertEqualDecode(result.stdout, f"file 0 successfully renamed to {new_name}\n")
+        result = subprocess.run(
+            ["./Shopository", "rename", "0", new_name], capture_output=True
+        )
+        self.assertEqualDecode(
+            result.stdout, f"file 0 successfully renamed to {new_name}\n"
+        )
         subprocess.run(
             ["./Shopository", "pull", "0"],
             stdout=subprocess.DEVNULL,
@@ -233,8 +238,12 @@ class TestRename(TestBase):
         with open(filepath, "w") as f:
             f.write("mario")
         subprocess.run(["./Shopository", "push", filepath], stdout=subprocess.DEVNULL)
-        result = subprocess.run(["./Shopository", "rename", "1", "wario.jpeg"], capture_output=True)
-        self.assertEqualDecode(result.stderr, f"Error 404. \"This image id does not exist\"\n\n")
+        result = subprocess.run(
+            ["./Shopository", "rename", "1", "wario.jpeg"], capture_output=True
+        )
+        self.assertEqualDecode(
+            result.stderr, f'Error 404. "This image id does not exist"\n\n'
+        )
         subprocess.run(
             ["./Shopository", "remove", "0", "--yes"], stdout=subprocess.DEVNULL
         )
@@ -244,10 +253,55 @@ class TestRename(TestBase):
         with open(filepath, "w") as f:
             f.write("mario")
         subprocess.run(["./Shopository", "push", filepath], stdout=subprocess.DEVNULL)
-        result = subprocess.run(["./Shopository", "rename", "0", "wario.banana"], capture_output=True)
-        self.assertEqualDecode(result.stderr, f"Error 400. \"Bad file extension. Filetypes png, jpg, jpeg, gif, pdf are supported\"\n\n")
+        result = subprocess.run(
+            ["./Shopository", "rename", "0", "wario.banana"], capture_output=True
+        )
+        self.assertEqualDecode(
+            result.stderr,
+            f'Error 400. "Bad file extension. Filetypes png, jpg, jpeg, gif, pdf are supported"\n\n',
+        )
         subprocess.run(
             ["./Shopository", "remove", "0", "--yes"], stdout=subprocess.DEVNULL
+        )
+
+
+class TestRemove(TestBase):
+    def test_remove_success(self):
+        filename = "bowser.jpeg"
+        filepath = os.path.join(self.test_dir, filename)
+        with open(filepath, "w") as f:
+            f.write("mario")
+        subprocess.run(["./Shopository", "push", filepath], stdout=subprocess.DEVNULL)
+        result = subprocess.run(
+            ["./Shopository", "remove", "0", "--yes"], capture_output=True
+        )
+        self.assertEqualDecode(result.stdout, "file 0 successfully deleted\n")
+        self.assertFalse(os.path.exists(f"./images/{filename}"))
+
+    def test_remove_bad_index(self):
+        result = subprocess.run(
+            ["./Shopository", "remove", "0", "--yes"], capture_output=True
+        )
+        self.assertEqualDecode(
+            result.stderr, 'Error 404. "This image id does not exist"\n\n'
+        )
+
+    def test_remove_confirmation(self):
+        filename = "bowser.jpeg"
+        filepath = os.path.join(self.test_dir, filename)
+        with open(filepath, "w") as f:
+            f.write("mario")
+        subprocess.run(["./Shopository", "push", filepath], stdout=subprocess.DEVNULL)
+        result = subprocess.run(
+            ["./Shopository", "remove", "0"], input=b"n", capture_output=True
+        )
+        self.assertEqualDecode(result.stderr, "Aborted!\n")
+        result = subprocess.run(
+            ["./Shopository", "remove", "0"], input=b"y", capture_output=True
+        )
+        self.assertEqualDecode(
+            result.stdout,
+            "This will permanently delete this image. Are you sure you want to continue? [y/N]: file 0 successfully deleted\n",
         )
 
 

@@ -125,7 +125,7 @@ class Image(Resource):
         Deletes image
         """
         if images[id] == None:
-            return "this image id does not exist", 404
+            return "This image id does not exist", 404
 
         os.remove(get_filepath(id, images[id]["filename"]))
         images[id] = None
