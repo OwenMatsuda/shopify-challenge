@@ -107,7 +107,12 @@ class Image(Resource):
         params = parser.parse_args()
 
         if images[id] == None:
-            return "this image id does not exist", 404
+            return "This image id does not exist", 404
+        elif not valid_file_ext(params["image_name"]):
+            return (
+                "Bad file extension. Filetypes png, jpg, jpeg, gif, pdf are supported",
+                400,
+            )
         os.rename(
             get_filepath(id, images[id]["filename"]),
             get_filepath(id, params["image_name"]),
@@ -130,7 +135,7 @@ class Image(Resource):
 class Image_getname(Resource):
     def get(self, id):
         """Returns image name"""
-        if images[id] == None:
+        if id < 0 or id > 99 or images[id] == None:
             return "this image id does not exist", 404
         return images[id]["filename"], 200
 
