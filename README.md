@@ -27,6 +27,7 @@ I creatively named my CLI "Shopository". This has the main purpose of abstractin
  - In a terminal, `git clone https://github.com/OwenMatsuda/shopify-challenge.git`
  - `cd shopify-challenge`
  - If you want to use a virtual environment, now is the time to set it up
+   - If you don't already have virtualenv installed, `pip install virtualenv`
    - `python -m virtualenv venv`
    - `source venv/bin/activate`
  - Then install the requirements `pip install -r requirements.txt`
