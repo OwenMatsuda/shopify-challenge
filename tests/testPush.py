@@ -54,7 +54,7 @@ Error: Missing argument 'IMAGE_FILE'.
 
     def test_push_fail_bad_file_ext(self):
         for bad_ext in ["troopa", "mario", "luigi"]:
-            filepath = os.path.join(self.test_dir, f"koops{bad_ext}")
+            filepath = os.path.join(self.test_dir, f"koopa.{bad_ext}")
             f = open(filepath, "x")
             f.close()
             result = subprocess.run(
