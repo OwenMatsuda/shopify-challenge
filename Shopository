@@ -5,6 +5,8 @@ import os
 import sys
 
 
+base_url = os.getenv("SHOPOSITORY_API_LINK", "http://127.0.0.1:5000")
+
 @click.group()
 def shopository():
     """CLI wrapper for shopository"""
@@ -25,7 +27,7 @@ def push(image_file: str):
         )
         return
     response = requests.post(
-        url="http://127.0.0.1:5000/images", files={"image_file": open(image_file, "rb")}
+        url=f"{base_url}/images", files={"image_file": open(image_file, "rb")}
     )
     if response.status_code == 201:
         print(
@@ -48,11 +50,11 @@ def pull(image_id: int, output: str):
     Fetch image with id image_id \n
     IMAGE_ID = Shopository image id. Can be found using Shopository ls
     """
-    r = requests.get(url=f"http://127.0.0.1:5000/images/getname/{image_id}")
+    r = requests.get(url=f"{base_url}/images/getname/{image_id}")
     image_name = r.text[1:-2]
     output = f"./{image_name}" if not output else output
 
-    response = requests.get(url=f"http://127.0.0.1:5000/images/{image_id}")
+    response = requests.get(url=f"{base_url}/images/{image_id}")
     if response.status_code == 200:
         with open(output, "wb") as fd:
             fd.write(response.content)
@@ -71,7 +73,7 @@ def rename(image_id: int, name: str):
     NAME = new file name for given image
     """
     response = requests.put(
-        url=f"http://127.0.0.1:5000/images/{image_id}", params={"image_name": name}
+        url=f"{base_url}/images/{image_id}", params={"image_name": name}
     )
     if response.status_code == 200:
         print(f"file {image_id} successfully renamed to {name}")
@@ -90,7 +92,7 @@ def remove(image_id: int):
     IMAGE_ID = Shopository image id. Can be found using Shopository ls
     """
     # click.confirm(f"This will permanently delete image {image_id}. Are you sure you want to continue?")
-    response = requests.delete(url=f"http://127.0.0.1:5000/images/{image_id}")
+    response = requests.delete(url=f"{base_url}/images/{image_id}")
     if response.status_code == 200:
         print(f"file {image_id} successfully deleted")
     else:
@@ -100,7 +102,7 @@ def remove(image_id: int):
 @shopository.command()
 def ls():
     """List all images in the repo"""
-    response = requests.get(url="http://127.0.0.1:5000/images/ls")
+    response = requests.get(url=f"{base_url}/images/ls")
     if response.status_code == 200:
         print(
             "\n".join(
